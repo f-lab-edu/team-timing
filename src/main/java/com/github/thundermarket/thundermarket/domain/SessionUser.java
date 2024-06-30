@@ -1,8 +1,9 @@
 package com.github.thundermarket.thundermarket.domain;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class SessionUser {
+public class SessionUser implements Serializable {
 
     private String email;
 

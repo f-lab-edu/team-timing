@@ -42,4 +42,7 @@ infra/.env
 infra/mysql/data/*
 !infra/mysql/data/.gitkeep
 
+infra/redis/data/*
+!infra/redis/data/.gitkeep
+
 src/main/resources/application.properties

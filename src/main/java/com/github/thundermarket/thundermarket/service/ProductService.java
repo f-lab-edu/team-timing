@@ -13,6 +13,8 @@ import java.util.List;
 @Service
 public class ProductService {
 
+    public static final int minPaginationLimit = 1;
+    public static final int maxPaginationLimit = 100;
     private final ProductRepository productRepository;
     private final ProductDetailRepository productDetailRepository;
 
@@ -21,9 +23,14 @@ public class ProductService {
         this.productDetailRepository = productDetailRepository;
     }
 
+    public ProductsResponse products(Long cursorId, int limit) {
+        long effectiveCursorId = (cursorId == null) ? 0 : cursorId;
+        int effectiveLimit = Math.min(maxPaginationLimit, Math.max(minPaginationLimit, limit));
 
-    public ProductsResponse products() {
-        return ProductsResponse.of(productRepository.findAll());
+        List<Product> products = productRepository.findAll(effectiveCursorId, effectiveLimit);
+        Long newCursorId = products.isEmpty() ? null : products.get(products.size() - 1).getId();
+        long totalCount = productRepository.count();
+        return ProductsResponse.of(products, newCursorId, limit, totalCount);
     }
 
     public ProductResponse add(Product product, ProductDetail productDetail) {

@@ -91,7 +91,7 @@ public class ProductControllerTest {
                         .contentType("application/json")
                         .cookie(new Cookie("SESSION", sessionId)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"products\":[]}"));
+                .andExpect(content().string("{\"products\":[],\"cursorId\":null,\"limit\":10,\"totalCount\":0}"));
     }
 
     @Test

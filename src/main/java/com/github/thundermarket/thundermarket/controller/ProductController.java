@@ -21,8 +21,11 @@ public class ProductController {
     }
 
     @GetMapping("/api/v1/products")
-    public ResponseEntity<ProductsResponse> products() {
-        return new ResponseEntity<>(productService.products(), HttpStatus.OK);
+    public ResponseEntity<ProductsResponse> products(
+            @RequestParam(name = "cursorId", defaultValue = "0") Long cursorId,
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        return new ResponseEntity<>(productService.products(cursorId, limit), HttpStatus.OK);
     }
 
     @GetMapping("/api/v1/products/{id}")

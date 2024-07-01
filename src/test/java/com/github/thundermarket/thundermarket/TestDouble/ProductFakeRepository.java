@@ -11,7 +11,7 @@ public class ProductFakeRepository implements ProductRepository {
     private final List<Product> products = new ArrayList<>();
 
     @Override
-    public List<Product> findAll() {
+    public List<Product> findAll(Long cursorId, int limit) {
         return products;
     }
 
@@ -30,5 +30,10 @@ public class ProductFakeRepository implements ProductRepository {
     @Override
     public void delete(Long id) {
         products.remove(id.intValue());
+    }
+
+    @Override
+    public long count() {
+        return products.size();
     }
 }

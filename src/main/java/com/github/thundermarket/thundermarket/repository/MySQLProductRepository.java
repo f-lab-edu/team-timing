@@ -63,40 +63,57 @@ public class MySQLProductRepository implements ProductRepository {
     }
 
     @Override
-    public List<Product> findAll() {
-        String sql = "SELECT * FROM products";
-        Connection conn = null;
+    public List<Product> findAll(Long cursorId, int limit) {
+        String sql = "SELECT * FROM products WHERE id > ? ORDER BY id ASC LIMIT ?";
+        List<Product> products = new ArrayList<>();
 
-        try {
-            conn = getConnection();
-            try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                ResultSet resultSet = ps.executeQuery();
-                List<Product> products = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                while (resultSet.next()) {
-                    long id = resultSet.getLong("id");
-                    String name = resultSet.getString("name");
-                    int price = resultSet.getInt("price");
-                    String status = resultSet.getString("status");
+            pstmt.setLong(1, cursorId);
+            pstmt.setInt(2, limit);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    long id = rs.getLong("id");
+                    String name = rs.getString("name");
+                    int price = rs.getInt("price");
+                    String status = rs.getString("status");
                     products.add(new Product.Builder()
-                                    .withId(id)
-                                    .withName(name)
-                                    .withPrice(price)
-                                    .withStatus(status)
-                                    .build()
+                            .withId(id)
+                            .withName(name)
+                            .withPrice(price)
+                            .withStatus(status)
+                            .build()
                     );
                 }
-                return products;
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Find all products failed", e);
-        } finally {
-            releaseConnection(conn);
+            throw new RuntimeException("Fetching products failed", e);
         }
+
+        return products;
     }
 
     @Override
     public void delete(Long id) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public long count() {
+        String sql = "SELECT COUNT(*) FROM products";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Counting products failed", e);
+        }
     }
 }
